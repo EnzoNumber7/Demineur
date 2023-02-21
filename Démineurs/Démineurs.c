@@ -87,7 +87,9 @@ int verificationMine(int* mine, int lineChoice, int columnChoice, char * tab) {
 }
 
 /*
-* Fonction mineProximity qui prend en paramêtre le tableau, le tableau de mine et la ligne et la colone du joueur qui renvoie
+* Fonction mineProximity qui prend en paramêtre le tableau, le tableau de mine et la ligne et la colone du joueur, ne renvoie rien et permet de compter les 
+mines autour de la case séléctionner
+* 
 * Initialisation de numberLine qui vaut racine de sizeTab
 * Initialisation de i à 0
 * Initialisation de nbMine à 0
@@ -111,4 +113,9 @@ int verificationMine(int* mine, int lineChoice, int columnChoice, char * tab) {
 *
 *       Si le reste de la division euclidienne de placement par numberLine est differente de 0      On verif si on est pas à gauche
 *           Alors si placement-8 est égale à mine de i On ajoute 1 à nbMine                         On verif si la case en haut à gauche est une mine
+*
+* Si nbMine est égale à 0 
+*   Faire en sorte de casser toute les case autours, et toutes le case egale à 0 relié à elle (recursif??????)
+* 
+* tab[placement] = nbMine + '0'
 */
