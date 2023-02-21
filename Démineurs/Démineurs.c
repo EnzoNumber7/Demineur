@@ -58,6 +58,7 @@ int main()
 }
 
 void printGame(char * tab) {
+    // Fonction qui prend en paramètre le tableau de jeu et permet de l'afficher
     int numberLine = (int)sqrt(sizeTab);
     int i = 0;
     int j = 0;
@@ -73,6 +74,7 @@ void printGame(char * tab) {
 }
 
 int verificationMine(int* mine, int lineChoice, int columnChoice, char * tab) {
+    // Fonction qui prend en paramètre le tableau contenant le placement des mines, le tableau de jeu, la ligne et la colone séléctionner par le joueur
     int numberLine = (int)sqrt(sizeTab);
     int i = 0;
     int placement = (lineChoice - 1) * numberLine + (columnChoice);
