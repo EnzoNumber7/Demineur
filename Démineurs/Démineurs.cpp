@@ -88,13 +88,27 @@ int verificationMine(int* mine, int lineChoice, int columnChoice, char * tab) {
 
 /*
 * Fonction mineProximity qui prend en paramêtre le tableau, le tableau de mine et la ligne et la colone du joueur qui renvoie
+* Initialisation de numberLine qui vaut racine de sizeTab
 * Initialisation de i à 0
 * Initialisation de nbMine à 0
 * Initialisation et calcul du placement du joueur sur le tableau
 * Pour i de 0 a taille du tableau de mine
-*   Si placement est supérieur a 8 et inferieur à 72
-*       Alors si le reste de la division euclidienne de placement par 9 est égale à 0 et que le reste de la division euclidienne de placement par 9 égale 8
-*           Alors Si placement+9 est égale à mine de i
-*               Alors on ajoute 1 à nbMine
-*      Si
+* 
+*   Si placement est inferieur à 72                                                                 On verif si est pas en bas
+*       Si placement+9 est égale à mine de i On ajoute 1 à nbMine                                   On verif si la case du dessous est une mine 
+*       
+*       Si le reste de la division euclidienne de placement par numberLine est differente de 8        On verif si on est pas à droite 
+*           Alors Si placement+10 est égale à mine de i On ajoute 1 à nbMine
+*           
+*       Si le reste de la division euclidienne de placement par numberLine est differente de 0
+*           Alors si placement+8 est égale à mine de i On ajoute 1 à nbMine
+* 
+*   Si placement est supérieur à 9
+        Si placement-9 est égale à mine de i On ajoute 1 à nbMine
+*
+*       Si le reste de la division euclidienne de placement par numberLine est differente de 8
+*           Alors Si placement-10 est égale à mine de i On ajoute 1 à nbMine
+*
+*       Si le reste de la division euclidienne de placement par numberLine est differente de 0
+*           Alors si placement-8 est égale à mine de i On ajoute 1 à nbMine
 */
