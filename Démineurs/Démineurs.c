@@ -94,21 +94,21 @@ int verificationMine(int* mine, int lineChoice, int columnChoice, char * tab) {
 * Initialisation et calcul du placement du joueur sur le tableau
 * Pour i de 0 a taille du tableau de mine
 * 
-*   Si placement est inferieur à 72                                                                 On verif si est pas en bas
+*   Si placement est inferieur à 72                                                                 On verif si on est pas en bas
 *       Si placement+9 est égale à mine de i On ajoute 1 à nbMine                                   On verif si la case du dessous est une mine 
 *       
-*       Si le reste de la division euclidienne de placement par numberLine est differente de 8        On verif si on est pas à droite 
-*           Alors Si placement+10 est égale à mine de i On ajoute 1 à nbMine
+*       Si le reste de la division euclidienne de placement par numberLine est differente de 8      On verif si on est pas à droite 
+*           Alors Si placement+10 est égale à mine de i On ajoute 1 à nbMine                        On verif si la case en bas à droite est une mine  
 *           
-*       Si le reste de la division euclidienne de placement par numberLine est differente de 0
-*           Alors si placement+8 est égale à mine de i On ajoute 1 à nbMine
+*       Si le reste de la division euclidienne de placement par numberLine est differente de 0      On verif si on est pas à gauche
+*           Alors si placement+8 est égale à mine de i On ajoute 1 à nbMine                         On verif si la case en bas à gauche est une mine
 * 
-*   Si placement est supérieur à 9
-        Si placement-9 est égale à mine de i On ajoute 1 à nbMine
+*   Si placement est supérieur à 9                                                                  On verif si on est pas en haut
+        Si placement-9 est égale à mine de i On ajoute 1 à nbMine                                   On verif si la case du dessus est une mine
 *
-*       Si le reste de la division euclidienne de placement par numberLine est differente de 8
-*           Alors Si placement-10 est égale à mine de i On ajoute 1 à nbMine
+*       Si le reste de la division euclidienne de placement par numberLine est differente de 8      On verif si on est pas à droite
+*           Alors Si placement-10 est égale à mine de i On ajoute 1 à nbMine                        On verif si la case en haut à droite est une mine
 *
-*       Si le reste de la division euclidienne de placement par numberLine est differente de 0
-*           Alors si placement-8 est égale à mine de i On ajoute 1 à nbMine
+*       Si le reste de la division euclidienne de placement par numberLine est differente de 0      On verif si on est pas à gauche
+*           Alors si placement-8 est égale à mine de i On ajoute 1 à nbMine                         On verif si la case en haut à gauche est une mine
 */
