@@ -11,10 +11,12 @@
 
 void printGame(char* tab);
 int verificationMine(int* mine, int lineChoice, int columnChoice, char * tab );
+void mineProximity(char* tab, int* mine, int lineChoice, int columnChoice);
 
 int main()
 {
-    // Création et affichage du tableau de jeu
+    // Création et affichage du tableau de jeu et initialisation du tableau de mines
+    int mine[10];
     int i = 0;
     char tab[sizeTab];
     for (i = 0; i < sizeTab; i++) {
@@ -23,22 +25,54 @@ int main()
 
     printGame(tab);
 
+    // Premier tour de jeu, le joueur ne peut pas perdre donc on place les mines sur la tableau après le premier coup du joueur
+    int lineChoice, columnChoice, input;
+
+    printf("Choisissez une ligne");
+    input = scanf("%d", &lineChoice);
+
+    printf("Choisissez une colone");
+    input = scanf("%d", &columnChoice);
+
 
     // Placement des mines
-    // Faire en sorte de ne pas perdre tour 1
-    srand(time(0));
-
-    int mine[10];
-    i = 0;
-    for (i = 0; i < 10; i++) {
+    time_t t;
+    srand((unsigned)time(&t));
+	int numberLine = (int)sqrt(sizeTab);
+	int placement = (lineChoice - 1) * numberLine + (columnChoice - 1);
+    mine[0] = rand() % 80;
+    if (mine[0] == placement) {
+        mine[0] = rand() % 80;
+    }
+    i = 1;
+    int j = 0;
+    for (i = 1; i < 10; i++) {
         mine[i] = rand() % 80;
+        if (mine[i]==placement){
+			mine[i] = rand() % 80;
+        }
+            
+        for (j = 0; j < i; j++) {
+            if (mine[i] == mine[j] ) {
+                j = 0;
+                mine[j] = rand() % 80;
+            }
+        }
+        
     }
 
-    // Boucle de Jeu
+    i = 0;
+    for (i = 0; i < 10; i++) {
+        printf("%d /", mine[i]);
+    }
+
     int lose = 0;
+    mineProximity(tab, mine, lineChoice, columnChoice);
+    printGame(tab);
+
+    // Boucle de Jeu
 
     while (lose == 0) {
-        int lineChoice, columnChoice, input;
         printf("%d", mine[1]);
 
         printf("Choisissez une ligne");
@@ -48,8 +82,14 @@ int main()
         input=scanf("%d", &columnChoice);
 
         lose = verificationMine(mine, lineChoice, columnChoice,tab);
-        printGame(tab);
+        if (lose == 0) {
+            mineProximity(tab, mine, lineChoice, columnChoice);
+            printGame(tab);
+        }
+        
+        
         if (lose==1){
+            printGame(tab);
             printf("perdu !");
         }
     }
@@ -77,16 +117,17 @@ int verificationMine(int* mine, int lineChoice, int columnChoice, char * tab) {
     // Fonction qui prend en paramètre le tableau contenant le placement des mines, le tableau de jeu, la ligne et la colone séléctionner par le joueur
     int numberLine = (int)sqrt(sizeTab);
     int i = 0;
-    int placement = (lineChoice - 1) * numberLine + (columnChoice);
+    int placement = (lineChoice -1) * numberLine + (columnChoice -1);
 
     for (i = 0; i < sizeMine; i++) {
         if (placement == mine[i]) {
-            tab[placement-1] = 'M';
+            tab[placement] = 'M';
             return 1; 
         }
     }
     return 0;
 }
+
 
 /*
 * Fonction mineProximity qui prend en paramêtre le tableau, le tableau de mine et la ligne et la colone du joueur, ne renvoie rien et permet de compter les 
@@ -121,3 +162,86 @@ mines autour de la case séléctionner
 * 
 * tab[placement] = nbMine + '0'
 */
+
+void mineProximity (char * tab, int * mine, int lineChoice, int columnChoice){
+    int numberLine = (int)sqrt(sizeTab);
+    int i = 0;
+    int nbMine = 0;
+    int placement = (lineChoice -1) * numberLine + (columnChoice -1);
+
+    for (i = 0; i < sizeMine; i++) {
+         if (placement < 72){
+            if (placement + 9 == mine[i]){nbMine+=1;}
+
+            if (placement%numberLine != 8){
+                if (placement + 10 == mine[i]){nbMine+=1;}
+                if (placement + 1 == mine[i]){nbMine+=1;}
+
+            }
+			if (placement%numberLine != 0){
+				if (placement + 8 == mine[i]){nbMine+=1;}
+                if (placement - 1 == mine[i]){nbMine+=1;}
+			}
+            if (placement > 8){
+                if (placement - 9 == mine[i]) { nbMine += 1; }
+
+                else if (placement%numberLine != 8){
+                    if (placement - 10 == mine[i]){nbMine+=1;}
+                }
+                else if (placement%numberLine != 0){
+                    if (placement - 8 == mine[i]){nbMine+=1;}
+            }
+         }
+         }
+		 if (placement > 8){
+             if (placement - 9 == mine[i]) { nbMine += 1; }
+
+			if (placement%numberLine != 8){
+				if (placement - 10 == mine[i]){nbMine+=1;}
+                if (placement + 1 == mine[i]){nbMine+=1;}
+			}
+			if (placement%numberLine != 0){
+				if (placement - 8 == mine[i]){nbMine+=1;}
+                if (placement - 1 == mine[i]){nbMine+=1;}
+			}
+		 }
+    }
+    tab[placement] = nbMine + 48;
+    if (nbMine == 0) {
+        if (placement < 72){
+            return mineProximity(tab,mine,lineChoice+1,columnChoice);
+
+            if (placement%numberLine != 8){
+                return mineProximity(tab,mine,lineChoice+1,columnChoice+1);
+                return mineProximity(tab,mine,lineChoice,columnChoice+1);
+            }
+			if (placement%numberLine != 0){
+				return mineProximity(tab,mine,lineChoice+1,columnChoice-1);
+                return mineProximity(tab,mine,lineChoice,columnChoice-1);
+			}
+            if (placement > 8){
+                return mineProximity(tab,mine,lineChoice-1,columnChoice);
+
+                if (placement%numberLine != 8){
+                    return mineProximity(tab,mine,lineChoice-1,columnChoice+1);
+                }
+                if (placement%numberLine != 0){
+                    return mineProximity(tab,mine,lineChoice+1,columnChoice-1);
+                }
+             }
+         }
+		 if (placement > 8){
+			return mineProximity(tab,mine,lineChoice-1,columnChoice);
+
+			if (placement%numberLine != 8){
+				return mineProximity(tab,mine,lineChoice-1,columnChoice+1);
+                return mineProximity(tab,mine,lineChoice,columnChoice+1);
+			}
+			if (placement%numberLine != 0){
+				return mineProximity(tab,mine,lineChoice+1,columnChoice-1);
+                return mineProximity(tab,mine,lineChoice,columnChoice-1);
+			}
+		 }
+    }
+}
+
