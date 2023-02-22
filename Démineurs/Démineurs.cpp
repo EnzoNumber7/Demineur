@@ -208,40 +208,49 @@ void mineProximity (char * tab, int * mine, int lineChoice, int columnChoice){
     }
     tab[placement] = nbMine + 48;
     if (nbMine == 0) {
-        if (placement < 72){
-            return mineProximity(tab,mine,lineChoice+1,columnChoice);
-
-            if (placement%numberLine != 8){
-                return mineProximity(tab,mine,lineChoice+1,columnChoice+1);
-                return mineProximity(tab,mine,lineChoice,columnChoice+1);
+        
+        if (placement > 8) {
+            if (placement % numberLine != 0) {
+                return mineProximity(tab, mine, lineChoice - 1, columnChoice - 1), mineProximity(tab, mine, lineChoice, columnChoice - 1), mineProximity(tab, mine, lineChoice - 1, columnChoice);
             }
-			if (placement%numberLine != 0){
-				return mineProximity(tab,mine,lineChoice+1,columnChoice-1);
-                return mineProximity(tab,mine,lineChoice,columnChoice-1);
-			}
-            if (placement > 8){
-                return mineProximity(tab,mine,lineChoice-1,columnChoice);
+            if (placement % numberLine != 8) {
+                return mineProximity(tab, mine, lineChoice - 1, columnChoice + 1), mineProximity(tab, mine, lineChoice, columnChoice + 1), mineProximity(tab, mine, lineChoice - 1, columnChoice);
+            }
 
-                if (placement%numberLine != 8){
-                    return mineProximity(tab,mine,lineChoice-1,columnChoice+1);
+            if (placement < 72) {
+                if (placement % numberLine != 0) {
+                    return mineProximity(tab, mine, lineChoice + 1, columnChoice - 1), mineProximity(tab, mine, lineChoice + 1, columnChoice), mineProximity(tab, mine, lineChoice - 1, columnChoice);
                 }
-                if (placement%numberLine != 0){
-                    return mineProximity(tab,mine,lineChoice+1,columnChoice-1);
+                if (placement % numberLine != 8) {
+                    return mineProximity(tab, mine, lineChoice + 1, columnChoice + 1), mineProximity(tab, mine, lineChoice + 1, columnChoice), mineProximity(tab, mine, lineChoice - 1, columnChoice);
                 }
-             }
-         }
-		 if (placement > 8){
-			return mineProximity(tab,mine,lineChoice-1,columnChoice);
+                return mineProximity(tab, mine, lineChoice + 1, columnChoice), mineProximity(tab, mine, lineChoice - 1, columnChoice);
+                
+            }
+        }
 
-			if (placement%numberLine != 8){
-				return mineProximity(tab,mine,lineChoice-1,columnChoice+1);
-                return mineProximity(tab,mine,lineChoice,columnChoice+1);
-			}
-			if (placement%numberLine != 0){
-				return mineProximity(tab,mine,lineChoice+1,columnChoice-1);
-                return mineProximity(tab,mine,lineChoice,columnChoice-1);
-			}
-		 }
+        if (placement < 72) {
+            if (placement % numberLine != 0) {
+                return mineProximity(tab, mine, lineChoice + 1, columnChoice - 1), mineProximity(tab, mine, lineChoice, columnChoice - 1), mineProximity(tab, mine, lineChoice + 1, columnChoice);
+            }
+            if (placement % numberLine != 8) {
+                return mineProximity(tab, mine, lineChoice + 1, columnChoice + 1), mineProximity(tab, mine, lineChoice, columnChoice + 1), mineProximity(tab, mine, lineChoice + 1, columnChoice);
+            }
+
+            if (placement > 0) {
+                if (placement % numberLine != 0) {
+                    return mineProximity(tab, mine, lineChoice - 1, columnChoice - 1), mineProximity(tab, mine, lineChoice - 1, columnChoice), mineProximity(tab, mine, lineChoice - 1, columnChoice);
+                }
+                if (placement % numberLine != 8) {
+                    return mineProximity(tab, mine, lineChoice - 1, columnChoice + 1), mineProximity(tab, mine, lineChoice - 1, columnChoice), mineProximity(tab, mine, lineChoice - 1, columnChoice);
+                }
+                return mineProximity(tab, mine, lineChoice - 1, columnChoice), mineProximity(tab, mine, lineChoice - 1, columnChoice);
+
+            }
+        }
+
+
+            
     }
 }
 
