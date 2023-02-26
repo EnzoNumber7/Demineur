@@ -16,19 +16,38 @@ int verificationTab(int* verified, int placement);
 
 int main()
 {
-	// Création et affichage du tableau de jeu et initialisation du tableau de mines
-	int mine[10];
+	// -- INITIALISATION DES VARIABLE -- //
+
+	// Variable pour les boucles
 	int i = 0;
+	int j = 0;
+	int lose = 0;
+
+	// Tableau
 	char tab[sizeTab];
+	int mine[sizeMine];
+	int verified[sizeTab];
+
+	// Autre Variable
+	int lineChoice, columnChoice, input;
+	int numberLine = (int)sqrt(sizeTab);
+
+	int placement = 0;
+
+	// -- TABLEAU -- //
+	
+	// Remplissage du tableau de jeux
 	for (i = 0; i < sizeTab; i++) {
 		tab[i] = '_';
 	}
-
+	// Remplissage du tableau de vérification avec des -1
+	for (i = 0; i < 81; i++) {
+		verified[i] = -1;
+	}
 	printGame(tab);
 
-	// Premier tour de jeu, le joueur ne peut pas perdre donc on place les mines sur la tableau après le premier coup du joueur
-	int lineChoice, columnChoice, input;
 
+	// -- PREMIER TOUR DE JEU -- //
 	printf("Choisissez une ligne");
 	input = scanf("%d", &lineChoice);
 
@@ -36,33 +55,27 @@ int main()
 	input = scanf("%d", &columnChoice);
 	
 
-	// Placement des mines
+	// Placement des mines aléatoirement
 	time_t t;
 	srand((unsigned)time(&t));
-	int numberLine = (int)sqrt(sizeTab);
-	int placement = (lineChoice - 1) * numberLine + (columnChoice - 1);
+	
+	placement = (lineChoice - 1) * numberLine + (columnChoice - 1);
 
-	// Création du tableau de verification des case
-	int verified[81];
 	i = 0;
-	// On remplit le tableau avec -1
-	for (i = 0; i < 81; i++) {
-		verified[i] = -1;
-	}
-
 	mine[0] = rand() % 80;
-	if (mine[0] == placement) {
+	// Une mine ne peut pas être la où le joueur à joué son premier tour
+	if (mine[0] == placement) { 
 		mine[0] = rand() % 80;
 	}
 	i = 1;
-	int j = 0;
 	for (i = 1; i < 10; i++) {
 		mine[i] = rand() % 80;
+		// Une mine ne peut pas être la où le joueur à joué son premier tour
 		if (mine[i] == placement) {
 			mine[i] = rand() % 80;
 		}
 		for (j = 0; j < i; j++) {
-		
+			// Deux mine ne peuvent pas être au même endroit
 			if (mine[i] == mine[j]) {
 				mine[j] = rand() % 80;
 				j = 0;
@@ -73,12 +86,13 @@ int main()
 
 	}
 
+	// -- AFFICHAGE DES MINE -- // ----- TEMPORAIRE ----- //
 	i = 0;
 	for (i = 0; i < 10; i++) {
 		printf("%d /", mine[i]);
 	}
 
-	int lose = 0;
+	
 	mineProximity(tab, mine, lineChoice, columnChoice, verified);
 	printGame(tab);
 
@@ -86,7 +100,6 @@ int main()
 
 	while (lose == 0) {
 		
-		printf("%d", mine[1]);
 
 		printf("Choisissez une ligne");
 		input = scanf("%d", &lineChoice);
