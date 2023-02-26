@@ -223,6 +223,11 @@ void mineProximity(char* tab, int* mine, int lineChoice, int columnChoice, int* 
 					}
 					
 				}
+        else{
+          if (placement - 1 == mine[i]) { nbMine += 1; }
+					if (placement + 8 == mine[i]) { nbMine += 1; }
+					if (placement + 10 == mine[i]) { nbMine += 1; }
+        }
 			}
 		
 		}
