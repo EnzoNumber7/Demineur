@@ -6,16 +6,26 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
-#define sizeMine 10
-#define sizeTab 81
 
-void printGame(char* tab);
-int verificationMine(int* mine, int lineChoice, int columnChoice, char* tab);
-void mineProximity(char* tab, int* mine, int lineChoice, int columnChoice, int* verified);
-int verificationTab(int* verified, int placement);
+#define easyMine 10
+#define medMine 40
+#define hardMine 99
+
+#define easyTab 81  // tableau 9x9
+#define medTab 256  // tableau 16x16
+#define hardTab 529 // tableau 23x23
+
+void printGame(char* tab,int sizeTab);
+int verificationMine(int* mine, int lineChoice, int columnChoice, char* tab,int sizeTab,int sizeMine);
+void mineProximity(char* tab, int* mine, int lineChoice, int columnChoice, int* verified, int sizeMine, int sizeTab);
+int victory(int* verified, int sizeTab);
+int verificationTab(int* verified, int placement, int sizeTab);
+void putFlag(char* tab, int* mine, int lineChoice, int columnChoice, int* verifiedTab, int sizeTab);
 
 int main()
 {
+
+	
 	// -- INITIALISATION DES VARIABLE -- //
 
 	// Variable pour les boucles
@@ -23,16 +33,49 @@ int main()
 	int j = 0;
 	int lose = 0;
 
-	// Tableau
-	char tab[sizeTab];
-	int mine[sizeMine];
-	int verified[sizeTab];
 
 	// Autre Variable
 	int lineChoice, columnChoice, input;
-	int numberLine = (int)sqrt(sizeTab);
-
+	
+	
 	int placement = 0;
+	int win = 0;
+	int sizeTab,sizeMine;
+
+	char difficulties;
+	char choice;
+
+// -- CHOIX DIFFICULTE -- //
+	printf("Choisissez la difficulte : f pour facile, m pour moyen et d pour difficile\n");
+	input = scanf("%c", &difficulties);
+
+	if (difficulties == 'f') {
+		sizeTab = easyTab;
+		sizeMine = easyMine;
+	}
+	else if (difficulties == 'm') {
+		sizeTab = medTab;
+		sizeMine = medMine;
+	}
+	else if (difficulties == 'd') {
+		sizeTab = hardTab;
+		sizeMine = hardMine;
+		
+	}
+	else {
+		printf("Choix invalide, le jeu sera mis en moyen.");
+		sizeTab = medTab;
+		sizeMine = medMine;
+	}
+	printf("\n%d\n", sizeTab);
+
+	// -- INITIALISATION DES VARIABLE -- //
+	// Tableau
+	char* tab = (char*)malloc(sizeof(char) * sizeTab);
+	int* mine = (int*)malloc(sizeof(int) * sizeMine);
+	int* verified = (int*)malloc(sizeof(int) * sizeTab);
+
+	int numberLine = (int)sqrt(sizeTab);
 
 	// -- TABLEAU -- //
 	
@@ -41,10 +84,10 @@ int main()
 		tab[i] = '_';
 	}
 	// Remplissage du tableau de vérification avec des -1
-	for (i = 0; i < 81; i++) {
+	for (i = 0; i < sizeTab; i++) {
 		verified[i] = -1;
 	}
-	printGame(tab);
+	printGame(tab,sizeTab);
 
 
 	// -- PREMIER TOUR DE JEU -- //
@@ -62,22 +105,22 @@ int main()
 	placement = (lineChoice - 1) * numberLine + (columnChoice - 1);
 
 	i = 0;
-	mine[0] = rand() % 80;
+	mine[0] = rand() % sizeTab - 1;
 	// Une mine ne peut pas être la où le joueur à joué son premier tour
 	if (mine[0] == placement) { 
-		mine[0] = rand() % 80;
+		mine[0] = rand() % sizeTab - 1;
 	}
 	i = 1;
-	for (i = 1; i < 10; i++) {
-		mine[i] = rand() % 80;
+	for (i = 1; i < sizeMine; i++) {
+		mine[i] = rand() % sizeTab - 1;
 		// Une mine ne peut pas être la où le joueur à joué son premier tour
 		if (mine[i] == placement) {
-			mine[i] = rand() % 80;
+			mine[i] = rand() % sizeTab - 1;
 		}
 		for (j = 0; j < i; j++) {
 			// Deux mine ne peuvent pas être au même endroit
 			if (mine[i] == mine[j]) {
-				mine[j] = rand() % 80;
+				mine[j] = rand() % sizeTab - 1;
 				j = 0;
 			}
 		
@@ -88,58 +131,97 @@ int main()
 
 	// -- AFFICHAGE DES MINE -- // ----- TEMPORAIRE ----- //
 	i = 0;
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < sizeMine; i++) {
 		printf("%d /", mine[i]);
 	}
 
 	
-	mineProximity(tab, mine, lineChoice, columnChoice, verified);
-	printGame(tab);
+	mineProximity(tab, mine, lineChoice, columnChoice, verified, sizeMine, sizeTab);
+	printGame(tab, sizeTab);
 
 	// Boucle de Jeu
 
-	while (lose == 0) {
+	while (lose == 0 && win == 0) {
 		
+		printf("d pour drapeau, c pour casser\n");
+		input = scanf("%c", &choice);
+		if (choice == 'c' || choice == 'C'){
+			printf("Choisissez une ligne\n");
+			input = scanf("%d", &lineChoice);
 
-		printf("Choisissez une ligne");
-		input = scanf("%d", &lineChoice);
+			printf("Choisissez une colone\n");
+			input = scanf("%d", &columnChoice);
 
-		printf("Choisissez une colone");
-		input = scanf("%d", &columnChoice);
+			lose = verificationMine(mine, lineChoice, columnChoice, tab, sizeTab, sizeMine);
+			if (lose == 0) {
+				mineProximity(tab, mine, lineChoice, columnChoice, verified, sizeMine, sizeTab);
+				printGame(tab, sizeTab);
+			}
 
-		lose = verificationMine(mine, lineChoice, columnChoice, tab);
-		if (lose == 0) {
-			mineProximity(tab, mine, lineChoice, columnChoice, verified);
-			printGame(tab);
+
+			if (lose == 1) {
+				printGame(tab, sizeTab);
+				printf("perdu !");
+			}
+		
+		}
+		else if (choice == 'd' || choice == 'D'){
+			printf("Choisissez une ligne");
+			input = scanf("%d", &lineChoice);
+
+			printf("Choisissez une colone");
+			input = scanf("%d", &columnChoice);
+
+			putFlag(tab, mine, lineChoice, columnChoice, verified, sizeTab);
+			printGame(tab, sizeTab);
+		}
+		else{
+			printf("choix non disponible");
+		}
+		win = victory(verified, sizeTab);
+
+		if (win == 1) {
+			printf("Bravo vous avez gagne !\n");
 		}
 
-
-		if (lose == 1) {
-			printGame(tab);
-			printf("perdu !");
-		}
 	}
 
 
 }
 
-void printGame(char* tab) {
+void printGame(char* tab, int sizeTab) {
 	// Fonction qui prend en paramètre le tableau de jeu et permet de l'afficher
 	int numberLine = (int)sqrt(sizeTab);
 	int i = 0;
 	int j = 0;
-	printf(" |1||2||3||4||5||6||7||8||9|\n");
+
+	printf("__");
+	for (i = 1; i <= numberLine; i++) {
+		if (i < 10) {
+			printf("|0%d|", i);
+		}
+		else {
+			printf("|%d|", i);
+		}
+		
+	}
+	printf("\n");
 	for (i = 0; i < numberLine; i++) {
-		printf("%d", i + 1);
+		if (i < 9) {
+			printf("0%d", i + 1);
+		}
+		else {
+			printf("%d", i + 1);
+		}
 		for (j = 0; j < numberLine; j++) {
-			printf("|%c|", tab[i * 9 + j]);
+			printf("|_%c|", tab[i * 9 + j]);
 		}
 		printf("\n");
 	}
 
 }
 
-int verificationMine(int* mine, int lineChoice, int columnChoice, char* tab) {
+int verificationMine(int* mine, int lineChoice, int columnChoice, char* tab, int sizeTab, int sizeMine) {
 	
 	// Fonction qui prend en paramètre le tableau contenant le placement des mines, le tableau de jeu, la ligne et la colone séléctionner par le joueur
 	int numberLine = (int)sqrt(sizeTab);
@@ -157,15 +239,26 @@ int verificationMine(int* mine, int lineChoice, int columnChoice, char* tab) {
 	return 0;
 }
 
-void mineProximity(char* tab, int* mine, int lineChoice, int columnChoice, int* verifiedTab) {
+void mineProximity(char* tab, int* mine, int lineChoice, int columnChoice, int* verifiedTab , int sizeMine , int sizeTab) {
 	int numberLine = (int)sqrt(sizeTab);
 	int i = 0;
 	int nbMine = 0;
 	int placement = (lineChoice - 1) * numberLine + (columnChoice - 1);
 	int verified;
 	int isMine = 0;
+	int top = numberLine - 1;
+	int bot = sizeTab - numberLine;
+	int left = 0;
+	int right = numberLine - 1;
+	int upLeft = numberLine + 1;
+	int up = numberLine;
+	int upRight = numberLine - 1;
+	int downLeft = numberLine - 1;
+	int down = numberLine;
+	int downRight = numberLine + 1;
 
-	verified = verificationTab(verifiedTab, placement);
+
+	verified = verificationTab(verifiedTab, placement,sizeTab);
 	for (i = 0; i < sizeMine; i++) {
 		if (placement == mine[i]) {
 			isMine = 1;
@@ -175,59 +268,79 @@ void mineProximity(char* tab, int* mine, int lineChoice, int columnChoice, int* 
 	i = 0;
 	if (isMine == 0) {
 		for (i = 0; i < sizeMine; i++) {
-			if (placement > 8) {
-				if (placement < 72) {
-					if (placement % numberLine != 0) {
-						if (placement % numberLine != 8) {
-							if (placement - 8 == mine[i]) { nbMine += 1; }
-							if (placement +1 == mine[i] ) { nbMine += 1; }
-							if (placement +10 == mine[i] ) { nbMine += 1; }
+			if (placement > top) {
+				if (placement < bot) {
+					if (placement % numberLine != left) {
+						if (placement % numberLine != right) {
+							if (placement - upRight == mine[i]) { nbMine += 1; }
+							if (placement + 1 == mine[i] ) { nbMine += 1; }
+							if (placement + downRight == mine[i] ) { nbMine += 1; }
 							if (placement - 1 == mine[i]) { nbMine += 1; }
-							if (placement - 10 == mine[i]) { nbMine += 1; }
-							if (placement + 8 == mine[i]) { nbMine += 1; }
-							if (placement + 9 == mine[i]) { nbMine += 1; }
-							if (placement - 9 == mine[i]) { nbMine += 1; }
+							if (placement - upLeft == mine[i]) { nbMine += 1; }
+							if (placement + downLeft == mine[i]) { nbMine += 1; }
+							if (placement + down == mine[i]) { nbMine += 1; }
+							if (placement - up == mine[i]) { nbMine += 1; }
 						}
 						else {
 							if (placement - 1 == mine[i]) { nbMine += 1; }
-							if (placement - 10 == mine[i]) { nbMine += 1; }
-							if (placement + 8 == mine[i]) { nbMine += 1; }
-							if (placement + 9 == mine[i]) { nbMine += 1; }
-							if (placement - 9 == mine[i]) { nbMine += 1; }
+							if (placement - upLeft == mine[i]) { nbMine += 1; }
+							if (placement + downLeft == mine[i]) { nbMine += 1; }
+							if (placement + down == mine[i]) { nbMine += 1; }
+							if (placement - up == mine[i]) { nbMine += 1; }
 						}
 					}
 					else {
-						if (placement + 9 == mine[i]) { nbMine += 1; }
-						if (placement - 9 == mine[i]) { nbMine += 1; }
+						if (placement + down == mine[i]) { nbMine += 1; }
+						if (placement - up == mine[i]) { nbMine += 1; }
+						if (placement - upRight == mine[i]) { nbMine += 1; }
+						if (placement + 1 == mine[i]) { nbMine += 1; }
+						if (placement + downRight == mine[i]) { nbMine += 1; }
 					}
 					
 				}
 				else {
-					if (placement - 9 == mine[i]) { nbMine += 1; }
+					if (placement % numberLine != right) {
+						if (placement % numberLine != left) {
+							if (placement - up == mine[i]) { nbMine += 1; }
+							if (placement - upRight == mine[i]) { nbMine += 1; }
+							if (placement - upLeft == mine[i]) { nbMine += 1; }
+							if (placement + 1 == mine[i]) { nbMine += 1; }
+							if (placement - 1 == mine[i]) { nbMine += 1; }
+						}
+						else {
+							if (placement - up == mine[i]) { nbMine += 1; }
+							if (placement - upRight == mine[i]) { nbMine += 1; }
+							if (placement + 1 == mine[i]) { nbMine += 1; }
+						}
+					}
+					else {
+						if (placement - up == mine[i]) { nbMine += 1; }
+						if (placement - upLeft == mine[i]) { nbMine += 1; }
+					}
 				}
 				
 			}
 			else {
-				if (placement % numberLine != 8) {
-					if (placement % numberLine != 0) {
+				if (placement % numberLine != right) {
+					if (placement % numberLine != left) {
 						if (placement - 1 == mine[i]) { nbMine += 1; }
-						if (placement + 8 == mine[i]) { nbMine += 1; }
-						if (placement + 10 == mine[i]) { nbMine += 1; }
+						if (placement + downLeft == mine[i]) { nbMine += 1; }
+						if (placement + downRight == mine[i]) { nbMine += 1; }
 						if (placement + 1 == mine[i]) { nbMine += 1; }
-						if (placement + 9 == mine[i]) { nbMine += 1; }
+						if (placement + down == mine[i]) { nbMine += 1; }
 					}
 					else {
-						if (placement + 10 == mine[i]) { nbMine += 1; }
+						if (placement + downRight == mine[i]) { nbMine += 1; }
 						if (placement + 1 == mine[i]) { nbMine += 1; }
-						if (placement + 9 == mine[i]) { nbMine += 1; }
+						if (placement + down == mine[i]) { nbMine += 1; }
 					}
 					
 				}
-        else{
-          if (placement - 1 == mine[i]) { nbMine += 1; }
-					if (placement + 8 == mine[i]) { nbMine += 1; }
-					if (placement + 10 == mine[i]) { nbMine += 1; }
-        }
+				else{
+					if (placement - 1 == mine[i]) { nbMine += 1; }
+					if (placement + downLeft == mine[i]) { nbMine += 1; }
+					if (placement + down == mine[i]) { nbMine += 1; }
+				}
 			}
 		
 		}
@@ -235,46 +348,58 @@ void mineProximity(char* tab, int* mine, int lineChoice, int columnChoice, int* 
 	}
 
 	
-	if (nbMine == 0 && verified == 0 && placement >= 0 && placement <= 80) {
+	if (nbMine == 0 && verified == 0 && placement >= 0 && placement <= (sizeTab - 1)) {
 		
-		if (placement > 8){
-			if (placement < 72) {
-				if (placement % numberLine != 0) {
-					if (placement % numberLine != 8) {
-						return (mineProximity(tab, mine, lineChoice - 1, columnChoice, verifiedTab), mineProximity(tab, mine, lineChoice - 1, columnChoice + 1, verifiedTab), mineProximity(tab, mine, lineChoice, columnChoice + 1, verifiedTab), mineProximity(tab, mine, lineChoice + 1, columnChoice + 1, verifiedTab), mineProximity(tab, mine, lineChoice + 1, columnChoice, verifiedTab), mineProximity(tab, mine, lineChoice + 1, columnChoice - 1, verifiedTab), mineProximity(tab, mine, lineChoice, columnChoice - 1, verifiedTab), mineProximity(tab, mine, lineChoice - 1, columnChoice - 1, verifiedTab));
+		if (placement > top){
+			if (placement < bot) {
+				if (placement % numberLine != left) {
+					if (placement % numberLine != right) {
+						return (mineProximity(tab, mine, lineChoice - 1, columnChoice, verifiedTab, sizeMine, sizeTab), mineProximity(tab, mine, lineChoice - 1, columnChoice + 1, verifiedTab, sizeMine, sizeTab), mineProximity(tab, mine, lineChoice, columnChoice + 1, verifiedTab, sizeMine, sizeTab), mineProximity(tab, mine, lineChoice + 1, columnChoice + 1, verifiedTab, sizeMine, sizeTab), mineProximity(tab, mine, lineChoice + 1, columnChoice, verifiedTab, sizeMine, sizeTab), mineProximity(tab, mine, lineChoice + 1, columnChoice - 1, verifiedTab, sizeMine, sizeTab), mineProximity(tab, mine, lineChoice, columnChoice - 1, verifiedTab, sizeMine, sizeTab), mineProximity(tab, mine, lineChoice - 1, columnChoice - 1, verifiedTab, sizeMine, sizeTab));
 					}
-					return (mineProximity(tab, mine, lineChoice - 1, columnChoice, verifiedTab), mineProximity(tab, mine, lineChoice + 1, columnChoice, verifiedTab), mineProximity(tab, mine, lineChoice + 1, columnChoice - 1, verifiedTab), mineProximity(tab, mine, lineChoice, columnChoice - 1, verifiedTab), mineProximity(tab, mine, lineChoice - 1, columnChoice - 1, verifiedTab));
+					return (mineProximity(tab, mine, lineChoice - 1, columnChoice, verifiedTab, sizeMine, sizeTab), mineProximity(tab, mine, lineChoice + 1, columnChoice, verifiedTab, sizeMine, sizeTab), mineProximity(tab, mine, lineChoice + 1, columnChoice - 1, verifiedTab, sizeMine, sizeTab), mineProximity(tab, mine, lineChoice, columnChoice - 1, verifiedTab, sizeMine, sizeTab), mineProximity(tab, mine, lineChoice - 1, columnChoice - 1, verifiedTab, sizeMine, sizeTab));
 				}
-				return (mineProximity(tab, mine, lineChoice - 1, columnChoice, verifiedTab), mineProximity(tab, mine, lineChoice - 1, columnChoice + 1, verifiedTab), mineProximity(tab, mine, lineChoice, columnChoice + 1, verifiedTab), mineProximity(tab, mine, lineChoice + 1, columnChoice + 1, verifiedTab), mineProximity(tab, mine, lineChoice + 1, columnChoice, verifiedTab));
+				return (mineProximity(tab, mine, lineChoice - 1, columnChoice, verifiedTab, sizeMine, sizeTab), mineProximity(tab, mine, lineChoice - 1, columnChoice + 1, verifiedTab, sizeMine, sizeTab), mineProximity(tab, mine, lineChoice, columnChoice + 1, verifiedTab, sizeMine, sizeTab), mineProximity(tab, mine, lineChoice + 1, columnChoice + 1, verifiedTab, sizeMine, sizeTab), mineProximity(tab, mine, lineChoice + 1, columnChoice, verifiedTab, sizeMine, sizeTab));
 			}
-			if (placement % numberLine != 8) {
-				if (placement % numberLine != 0) {
-					return (mineProximity(tab, mine, lineChoice - 1, columnChoice, verifiedTab), mineProximity(tab, mine, lineChoice - 1, columnChoice + 1, verifiedTab), mineProximity(tab, mine, lineChoice, columnChoice + 1, verifiedTab), mineProximity(tab, mine, lineChoice, columnChoice - 1, verifiedTab), mineProximity(tab, mine, lineChoice - 1, columnChoice - 1, verifiedTab));
+			if (placement % numberLine != right) {
+				if (placement % numberLine != left) {
+					return (mineProximity(tab, mine, lineChoice - 1, columnChoice, verifiedTab, sizeMine, sizeTab), mineProximity(tab, mine, lineChoice - 1, columnChoice + 1, verifiedTab, sizeMine, sizeTab), mineProximity(tab, mine, lineChoice, columnChoice + 1, verifiedTab, sizeMine, sizeTab), mineProximity(tab, mine, lineChoice, columnChoice - 1, verifiedTab, sizeMine, sizeTab), mineProximity(tab, mine, lineChoice - 1, columnChoice - 1, verifiedTab, sizeMine, sizeTab));
 				}
-				return (mineProximity(tab, mine, lineChoice - 1, columnChoice, verifiedTab), mineProximity(tab, mine, lineChoice - 1, columnChoice + 1, verifiedTab), mineProximity(tab, mine, lineChoice, columnChoice + 1, verifiedTab));
+				return (mineProximity(tab, mine, lineChoice - 1, columnChoice, verifiedTab, sizeMine, sizeTab), mineProximity(tab, mine, lineChoice - 1, columnChoice + 1, verifiedTab, sizeMine, sizeTab), mineProximity(tab, mine, lineChoice, columnChoice + 1, verifiedTab, sizeMine, sizeTab));
 			}
-			return (mineProximity(tab, mine, lineChoice - 1, columnChoice, verifiedTab),  mineProximity(tab, mine, lineChoice, columnChoice - 1, verifiedTab), mineProximity(tab, mine, lineChoice - 1, columnChoice - 1, verifiedTab));
+			return (mineProximity(tab, mine, lineChoice - 1, columnChoice, verifiedTab, sizeMine, sizeTab),  mineProximity(tab, mine, lineChoice, columnChoice - 1, verifiedTab, sizeMine, sizeTab), mineProximity(tab, mine, lineChoice - 1, columnChoice - 1, verifiedTab, sizeMine, sizeTab));
 			
 		}
-		if (placement % numberLine != 8) {
-			if (placement % numberLine != 0) {
-				return (mineProximity(tab, mine, lineChoice, columnChoice + 1, verifiedTab), mineProximity(tab, mine, lineChoice + 1, columnChoice + 1, verifiedTab), mineProximity(tab, mine, lineChoice + 1, columnChoice, verifiedTab), mineProximity(tab, mine, lineChoice + 1, columnChoice - 1, verifiedTab), mineProximity(tab, mine, lineChoice, columnChoice - 1, verifiedTab));
+		if (placement % numberLine != right) {
+			if (placement % numberLine != left) {
+				return (mineProximity(tab, mine, lineChoice, columnChoice + 1, verifiedTab, sizeMine, sizeTab), mineProximity(tab, mine, lineChoice + 1, columnChoice + 1, verifiedTab, sizeMine, sizeTab), mineProximity(tab, mine, lineChoice + 1, columnChoice, verifiedTab, sizeMine, sizeTab), mineProximity(tab, mine, lineChoice + 1, columnChoice - 1, verifiedTab, sizeMine, sizeTab), mineProximity(tab, mine, lineChoice, columnChoice - 1, verifiedTab, sizeMine, sizeTab));
 			}
-			return (mineProximity(tab, mine, lineChoice, columnChoice + 1, verifiedTab), mineProximity(tab, mine, lineChoice + 1, columnChoice + 1, verifiedTab), mineProximity(tab, mine, lineChoice + 1, columnChoice, verifiedTab));
+			return (mineProximity(tab, mine, lineChoice, columnChoice + 1, verifiedTab, sizeMine, sizeTab), mineProximity(tab, mine, lineChoice + 1, columnChoice + 1, verifiedTab, sizeMine, sizeTab), mineProximity(tab, mine, lineChoice + 1, columnChoice, verifiedTab, sizeMine, sizeTab));
 		}
-		return (mineProximity(tab, mine, lineChoice + 1, columnChoice, verifiedTab), mineProximity(tab, mine, lineChoice + 1, columnChoice - 1, verifiedTab), mineProximity(tab, mine, lineChoice, columnChoice - 1, verifiedTab));
+		return (mineProximity(tab, mine, lineChoice + 1, columnChoice, verifiedTab, sizeMine, sizeTab), mineProximity(tab, mine, lineChoice + 1, columnChoice - 1, verifiedTab, sizeMine, sizeTab), mineProximity(tab, mine, lineChoice, columnChoice - 1, verifiedTab, sizeMine, sizeTab));
+	}
+
+}
+void putFlag (char * tab, int* mine, int lineChoice, int columnChoice, int* verifiedTab, int sizeTab){
+	int numberLine = (int)sqrt(sizeTab);
+	int i = 0;
+	int placement = (lineChoice - 1) * numberLine + (columnChoice - 1);
+	int verified = 0;
+
+	for (i=0;i<sizeTab;i++){
+		if (verifiedTab[i] == placement){
+			verified = 1;
+		}
+	}
+	if (verified == 0){
+		tab[placement] = '$';
 	}
 
 }
 
-int verificationTab(int * verified, int placement) {
+int verificationTab(int * verified, int placement, int sizeTab) {
 	int i = 0;
-	/*int j = 0;
-	for (j = 0; j < 81; j++) {
-		printf("%d", verified[i]);
-	}*/
 	
-	while (verified[i] != -1 && i < 81) {
+	while (verified[i] != -1 && i < sizeTab) {
 		if (verified[i] == placement) {
 			return 1;
 		}
@@ -283,4 +408,11 @@ int verificationTab(int * verified, int placement) {
 	verified[i] = placement;
 	return 0;
 	
+}
+
+int victory(int * verified, int sizeTab) {
+	if (verified[sizeTab-9] == -1) {
+		return 0;
+	}
+	return 1;
 }
