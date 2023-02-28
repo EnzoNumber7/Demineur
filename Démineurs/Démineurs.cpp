@@ -7,18 +7,11 @@
 #include <time.h>
 #include <math.h>
 
-#define easyMine 10
-#define medMine 40
-#define hardMine 99
-
-#define easyTab 81  // tableau 9x9
-#define medTab 256  // tableau 16x16
-#define hardTab 529 // tableau 23x23
 
 void printGame(char* tab,int sizeTab);
 int verificationMine(int* mine, int lineChoice, int columnChoice, char* tab,int sizeTab,int sizeMine);
 void mineProximity(char* tab, int* mine, int lineChoice, int columnChoice, int* verified, int sizeMine, int sizeTab);
-int victory(int* verified, int sizeTab);
+int victory(int* verified, int sizeTab, int sizeMine);
 int verificationTab(int* verified, int placement, int sizeTab);
 void putFlag(char* tab, int* mine, int lineChoice, int columnChoice, int* verifiedTab, int sizeTab);
 
@@ -32,6 +25,14 @@ int main()
 	int i = 0;
 	int j = 0;
 	int lose = 0;
+
+	int easyTab = 81;
+	int medTab = 256;
+	int hardTab = 529;
+
+	int easyMine = 10; 
+	int medMine = 40;
+	int hardMine = 99;
 
 
 	// Autre Variable
@@ -98,7 +99,7 @@ int main()
 	input = scanf("%d", &columnChoice);
 	
 
-	// Placement des mines aléatoirement
+	// -- PLACEMENT DES MINES -- //
 	time_t t;
 	srand((unsigned)time(&t));
 	
@@ -106,15 +107,15 @@ int main()
 
 	i = 0;
 	mine[0] = rand() % sizeTab - 1;
-	// Une mine ne peut pas être la où le joueur à joué son premier tour
-	if (mine[0] == placement) { 
+	// Une mine ne peut pas être sur ou autour de la case ou le joueur à joué
+	if (mine[0] == placement || mine[0] == placement-1 || mine[0] == placement+1 || mine[0] == placement-numberLine || mine[0] == placement-numberLine-1 || mine[0] == placement-numberLine+1 || mine[0] == placement+numberLine || mine[0] == placement+numberLine-1 || mine[0] == placement+numberLine+1) {
 		mine[0] = rand() % sizeTab - 1;
 	}
 	i = 1;
 	for (i = 1; i < sizeMine; i++) {
 		mine[i] = rand() % sizeTab - 1;
 		// Une mine ne peut pas être la où le joueur à joué son premier tour
-		if (mine[i] == placement) {
+		if (mine[i] == placement || mine[i] == placement - 1 || mine[i] == placement + 1 || mine[i] == placement - numberLine || mine[i] == placement - numberLine - 1 || mine[i] == placement - numberLine + 1 || mine[i] == placement + numberLine || mine[i] == placement + numberLine - 1 || mine[i] == placement + numberLine + 1) {
 			mine[i] = rand() % sizeTab - 1;
 		}
 		for (j = 0; j < i; j++) {
@@ -131,9 +132,10 @@ int main()
 
 	// -- AFFICHAGE DES MINE -- // ----- TEMPORAIRE ----- //
 	i = 0;
-	for (i = 0; i < sizeMine; i++) {
+	for (i = 0; i < 10; i++) {
 		printf("%d /", mine[i]);
 	}
+	printf("\n");
 
 	
 	mineProximity(tab, mine, lineChoice, columnChoice, verified, sizeMine, sizeTab);
@@ -178,7 +180,7 @@ int main()
 		else{
 			printf("choix non disponible");
 		}
-		win = victory(verified, sizeTab);
+		win = victory(verified, sizeTab, sizeMine);
 
 		if (win == 1) {
 			printf("Bravo vous avez gagne !\n");
@@ -186,10 +188,14 @@ int main()
 
 	}
 
+	free(tab);
+	free(verified);
+	free(mine);
 
 }
 
 void printGame(char* tab, int sizeTab) {
+
 	// Fonction qui prend en paramètre le tableau de jeu et permet de l'afficher
 	int numberLine = (int)sqrt(sizeTab);
 	int i = 0;
@@ -214,7 +220,7 @@ void printGame(char* tab, int sizeTab) {
 			printf("%d", i + 1);
 		}
 		for (j = 0; j < numberLine; j++) {
-			printf("|_%c|", tab[i * 9 + j]);
+			printf("|_%c|", tab[i * numberLine + j]);
 		}
 		printf("\n");
 	}
@@ -344,6 +350,7 @@ void mineProximity(char* tab, int* mine, int lineChoice, int columnChoice, int* 
 			}
 		
 		}
+		
 		tab[placement] = nbMine + 48;
 	}
 
@@ -410,8 +417,8 @@ int verificationTab(int * verified, int placement, int sizeTab) {
 	
 }
 
-int victory(int * verified, int sizeTab) {
-	if (verified[sizeTab-9] == -1) {
+int victory(int * verified, int sizeTab, int sizeMine) {
+	if (verified[sizeTab - (sizeMine-1)] == -1) {
 		return 0;
 	}
 	return 1;
