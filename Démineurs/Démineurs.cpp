@@ -7,6 +7,14 @@
 #include <time.h>
 #include <math.h>
 
+#define RED   "\x1B[31m"
+#define GRN   "\x1B[32m"
+#define YEL   "\x1B[33m"
+#define BLU   "\x1B[34m"
+#define MAG   "\x1B[35m"
+#define CYN   "\x1B[36m"
+#define RESET "\x1B[0m"
+
 
 void printGame(char* tab,int sizeTab);
 int verificationMine(int* mine, int lineChoice, int columnChoice, char* tab,int sizeTab,int sizeMine);
@@ -220,7 +228,14 @@ void printGame(char* tab, int sizeTab) {
 			printf("%d", i + 1);
 		}
 		for (j = 0; j < numberLine; j++) {
-			printf("|_%c|", tab[i * numberLine + j]);
+			// -- MISE EN COULEUR DES CHIFFRES DU DEMINEUR -- //
+			if (tab[i * numberLine + j] == '1') { printf("|_" BLU "1" RESET "|"); }
+			else if (tab[i * numberLine + j] == '2') { printf("|_" GRN "2" RESET "|"); }
+			else if (tab[i * numberLine + j] == '3') { printf("|_" RED "3" RESET "|"); }
+			else if (tab[i * numberLine + j] == '4') { printf("|_" MAG "4" RESET "|"); }
+			else if (tab[i * numberLine + j] == '5') { printf("|_" YEL "5" RESET "|"); }
+			else if (tab[i * numberLine + j] == '6') { printf("|_" CYN "6" RESET "|"); }
+			else {printf("|_%c|", tab[i * numberLine + j]); }
 		}
 		printf("\n");
 	}
@@ -400,6 +415,9 @@ void putFlag (char * tab, int* mine, int lineChoice, int columnChoice, int* veri
 	if (verified == 0){
 		tab[placement] = '$';
 	}
+	else {
+		printf("Erreur, choix imposible");
+	}
 
 }
 
@@ -418,7 +436,7 @@ int verificationTab(int * verified, int placement, int sizeTab) {
 }
 
 int victory(int * verified, int sizeTab, int sizeMine) {
-	if (verified[sizeTab - (sizeMine-1)] == -1) {
+	if (verified[sizeTab - sizeMine] == -1) {
 		return 0;
 	}
 	return 1;
