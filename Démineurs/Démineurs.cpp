@@ -77,7 +77,6 @@ int main()
 		sizeTab = medTab;
 		sizeMine = medMine;
 	}
-	printf("\n%d\n", sizeTab);
 
 	// -- INITIALISATION DES VARIABLE -- //
 	// Tableau
@@ -149,13 +148,6 @@ int main()
 
 	}
 
-	// -- AFFICHAGE DES MINE -- // ----- TEMPORAIRE ----- //
-	i = 0;
-	for (i = 0; i < 10; i++) {
-		printf("%d /", mine[i]);
-	}
-	printf("\n");
-	printf("\n");
 
 	
 	mineProximity(tab, mine, lineChoice, columnChoice, verified, sizeMine, sizeTab);
