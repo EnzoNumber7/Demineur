@@ -22,6 +22,7 @@ void mineProximity(char* tab, int* mine, int lineChoice, int columnChoice, int* 
 int victory(int* verified, int sizeTab, int sizeMine);
 int verificationTab(int* verified, int placement, int sizeTab);
 void putFlag(char* tab, int* mine, int lineChoice, int columnChoice, int* verifiedTab, int sizeTab);
+void freeScanf();
 
 int main()
 {
@@ -44,7 +45,7 @@ int main()
 
 
 	// Autre Variable
-	int lineChoice, columnChoice, input;
+	int lineChoice, columnChoice;
 	
 	
 	int placement = 0;
@@ -52,11 +53,11 @@ int main()
 	int sizeTab,sizeMine;
 
 	char difficulties;
-	char choice;
+	char choice = 'c';
 
 // -- CHOIX DIFFICULTE -- //
 	printf("Choisissez la difficulte : f pour facile, m pour moyen et d pour difficile\n");
-	input = scanf("%c", &difficulties);
+	scanf("%c", &difficulties);
 
 	if (difficulties == 'f') {
 		sizeTab = easyTab;
@@ -99,12 +100,19 @@ int main()
 	printGame(tab,sizeTab);
 
 
+	//stdin ""
+
 	// -- PREMIER TOUR DE JEU -- //
 	printf("Choisissez une ligne");
-	input = scanf("%d", &lineChoice);
+	scanf("%d", &lineChoice);
+	freeScanf();
+
+	//char c = getchar()
+
 
 	printf("Choisissez une colone");
-	input = scanf("%d", &columnChoice);
+	scanf("%d", &columnChoice);
+	freeScanf();
 	
 
 	// -- PLACEMENT DES MINES -- //
@@ -113,27 +121,30 @@ int main()
 	
 	placement = (lineChoice - 1) * numberLine + (columnChoice - 1);
 
+
 	i = 0;
-	mine[0] = rand() % sizeTab - 1;
-	// Une mine ne peut pas être sur ou autour de la case ou le joueur à joué
-	if (mine[0] == placement || mine[0] == placement-1 || mine[0] == placement+1 || mine[0] == placement-numberLine || mine[0] == placement-numberLine-1 || mine[0] == placement-numberLine+1 || mine[0] == placement+numberLine || mine[0] == placement+numberLine-1 || mine[0] == placement+numberLine+1) {
-		mine[0] = rand() % sizeTab - 1;
-	}
-	i = 1;
-	for (i = 1; i < sizeMine; i++) {
+	for (i = 0; i < sizeMine; i++) {
 		mine[i] = rand() % sizeTab - 1;
 		// Une mine ne peut pas être la où le joueur à joué son premier tour
-		if (mine[i] == placement || mine[i] == placement - 1 || mine[i] == placement + 1 || mine[i] == placement - numberLine || mine[i] == placement - numberLine - 1 || mine[i] == placement - numberLine + 1 || mine[i] == placement + numberLine || mine[i] == placement + numberLine - 1 || mine[i] == placement + numberLine + 1) {
-			mine[i] = rand() % sizeTab - 1;
+		if (mine[i] == placement || mine[i] == placement - 1 || mine[i] == placement + 1 || mine[i] == placement - numberLine || mine[i] == placement - numberLine - 1 || mine[i] == placement - numberLine + 1 || mine[i] == placement + numberLine || mine[i] == placement + numberLine - 1 || mine[i] == placement + numberLine + 1 || mine[i] <= 0 || mine[i] >= sizeTab-1) {
+			
+			i -= 1;
 		}
-		for (j = 0; j < i; j++) {
-			// Deux mine ne peuvent pas être au même endroit
-			if (mine[i] == mine[j]) {
-				mine[j] = rand() % sizeTab - 1;
-				j = 0;
-			}
+		if (i >= 1) {
+			for (j = 0; j < i; j++) {
+				// Deux mine ne peuvent pas être au même endroit
+				if (mine[i] == mine[j]) {
+					mine[j] = rand() % sizeTab - 1;
+					j = 0;
+				}
+				if (mine[j] == placement || mine[j] == placement - 1 || mine[j] == placement + 1 || mine[j] == placement - numberLine || mine[j] == placement - numberLine - 1 || mine[j] == placement - numberLine + 1 || mine[j] == placement + numberLine || mine[j] == placement + numberLine - 1 || mine[j] == placement + numberLine + 1 || mine[j] <= 0 || mine[j] >= sizeTab - 1) {
+					mine[j] = rand() % sizeTab - 1;
+					j -= 1;
+				}
 		
+			}	
 		}
+		
 		
 
 	}
@@ -144,23 +155,26 @@ int main()
 		printf("%d /", mine[i]);
 	}
 	printf("\n");
+	printf("\n");
 
 	
 	mineProximity(tab, mine, lineChoice, columnChoice, verified, sizeMine, sizeTab);
 	printGame(tab, sizeTab);
 
 	// Boucle de Jeu
-
 	while (lose == 0 && win == 0) {
-		
 		printf("d pour drapeau, c pour casser\n");
-		input = scanf("%c", &choice);
+		scanf("%c", &choice);
+		freeScanf();
+
 		if (choice == 'c' || choice == 'C'){
 			printf("Choisissez une ligne\n");
-			input = scanf("%d", &lineChoice);
+			scanf("%d", &lineChoice);
+			freeScanf();
 
 			printf("Choisissez une colone\n");
-			input = scanf("%d", &columnChoice);
+			scanf("%d", &columnChoice);
+			freeScanf();
 
 			lose = verificationMine(mine, lineChoice, columnChoice, tab, sizeTab, sizeMine);
 			if (lose == 0) {
@@ -175,19 +189,23 @@ int main()
 			}
 		
 		}
+
 		else if (choice == 'd' || choice == 'D'){
 			printf("Choisissez une ligne");
-			input = scanf("%d", &lineChoice);
+			scanf("%d", &lineChoice);
+			freeScanf();
 
 			printf("Choisissez une colone");
-			input = scanf("%d", &columnChoice);
+			scanf("%d", &columnChoice);
+			freeScanf();
 
 			putFlag(tab, mine, lineChoice, columnChoice, verified, sizeTab);
 			printGame(tab, sizeTab);
 		}
-		else{
-			printf("choix non disponible");
+		else {
+			printf("choix non disponible\n");
 		}
+		
 		win = victory(verified, sizeTab, sizeMine);
 
 		if (win == 1) {
@@ -436,8 +454,15 @@ int verificationTab(int * verified, int placement, int sizeTab) {
 }
 
 int victory(int * verified, int sizeTab, int sizeMine) {
-	if (verified[sizeTab - sizeMine] == -1) {
+	if (verified[sizeTab - (sizeMine+1)] == -1) {
 		return 0;
 	}
 	return 1;
+}
+
+void freeScanf() {
+	char c = getchar();
+	while (c != '\n'){
+		c = getchar();
+	}
 }
